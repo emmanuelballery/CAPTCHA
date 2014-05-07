@@ -1,0 +1,10 @@
+{
+    "name": "emmanuelballery/captcha",
+    "description": "PHP5 CAPTCHA protection",
+    "license": "MIT",
+    "version": "1.0.0",
+    "type": "library",
+    "require": {
+        "php": ">=5.3.2"
+    }
+}
