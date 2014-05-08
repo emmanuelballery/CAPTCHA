@@ -38,20 +38,6 @@ class Captcha
     private $lifetime;
 
     /**
-     * Width
-     *
-     * @var int
-     */
-    private $width;
-
-    /**
-     * Height
-     *
-     * @var int
-     */
-    private $height;
-
-    /**
      * Image data for HTML
      *
      * @var string
@@ -71,6 +57,8 @@ class Captcha
      * @var array
      */
     private $defaultOptions = array(
+        'width' => 300,
+        'height' => 100,
         'backgroundRedMin' => 230,
         'backgroundRedMax' => 255,
         'backgroundGreenMin' => 230,
@@ -83,8 +71,8 @@ class Captcha
         'letterGreenMax' => 60,
         'letterBlueMin' => 0,
         'letterBlueMax' => 60,
-        'angleMin' => -20,
-        'angleMax' => 20,
+        'angleMin' => -10,
+        'angleMax' => 10,
         'fontSize' => 30,
         'xMinPercentage' => 0.05,
         'xMaxPercentage' => 0.05,
@@ -98,6 +86,7 @@ class Captcha
         'lineGreenMax' => 200,
         'lineBlueMin' => 150,
         'lineBlueMax' => 200,
+        'wordLetters' => 'abcdefghijklmnpqrstuvwxyzABCDEFGHIJKLMNPQRSTUVWXYZ123456789',
     );
 
     /**
@@ -108,21 +97,18 @@ class Captcha
     private $options;
 
     /**
-     * @param int   $width    Width
-     * @param int   $height   Height
+     * @param int   $size     Word size
      * @param int   $lifetime Lifetime in seconds
      * @param array $options  Image options
      */
-    function __construct($width, $height, $lifetime, array $options = array())
+    function __construct($size, $lifetime, array $options = array())
     {
         $this->id = uniqid(mt_rand(), true);
-        $this->value = uniqid();
         $this->lifetime = $lifetime;
         $this->created = time();
-        $this->width = $width;
-        $this->height = $height;
         $this->fonts = glob(__DIR__ . '/../Resources/fonts/*');
         $this->options = array_merge($this->defaultOptions, $options);
+        $this->value = $this->generateValue($size);
     }
 
     /**
@@ -175,14 +161,18 @@ class Captcha
         // Choose one font
         $font = $this->fonts[mt_rand(0, count($this->fonts) - 1)];
 
+        // Prepare size
+        $width = $this->options['width'];
+        $height = $this->options['height'];
+
         // Prepare text area
-        $xMin = intval($this->options['xMinPercentage'] * $this->width);
-        $xMax = intval($this->options['xMaxPercentage'] * $this->width);
+        $xMin = intval($this->options['xMinPercentage'] * $width);
+        $xMax = intval($this->options['xMaxPercentage'] * $width);
         $letters = array_values(str_split($this->value));
-        $letterX = intval(($this->width - $xMin - $xMax) / count($letters));
+        $letterX = intval(($width - $xMin - $xMax) / count($letters));
 
         // Create image and background
-        $image = imagecreate($this->width, $this->height);
+        $image = imagecreate($width, $height);
         imagecolorallocate(
             $image,
             mt_rand($this->options['backgroundRedMin'], $this->options['backgroundRedMax']),
@@ -199,7 +189,7 @@ class Captcha
             mt_rand($this->options['lineBlueMin'], $this->options['lineBlueMax'])
         );
         for ($i = 0; $i < $lineCount; $i++) {
-            imagedashedline($image, mt_rand(0, $this->width), mt_rand(0, $this->height), mt_rand(0, $this->width), mt_rand(0, $this->height), $lineColor);
+            imagedashedline($image, mt_rand(0, $width), mt_rand(0, $height), mt_rand(0, $width), mt_rand(0, $height), $lineColor);
         }
 
         // Add letters
@@ -216,7 +206,7 @@ class Captcha
                 $this->options['fontSize'],
                 -45 + mt_rand($this->options['angleMin'] + 45, $this->options['angleMax'] + 45),
                 $xMin + $pos * $letterX,
-                mt_rand(intval($this->options['yMinPercentage'] * $this->height), $this->height - intval($this->options['yMaxPercentage'] * $this->height)),
+                mt_rand(intval($this->options['yMinPercentage'] * $height), $height - intval($this->options['yMaxPercentage'] * $height)),
                 $textColor,
                 $font,
                 $letter
@@ -232,6 +222,24 @@ class Captcha
         imagedestroy($image);
 
         return $this->imageData = sprintf('data:image/png;charset=utf-8;base64,%s', base64_encode($raw));
+    }
+
+    /**
+     * Generate value
+     *
+     * @param int $size
+     *
+     * @return string
+     */
+    public function generateValue($size)
+    {
+        $letters = str_split($this->options['wordLetters']);
+        $str = '';
+        do {
+            $str .= $letters[mt_rand(0, count($letters) - 1)];
+        } while (--$size > 0);
+
+        return $str;
     }
 
     /**
@@ -328,54 +336,6 @@ class Captcha
     public function getLifetime()
     {
         return $this->lifetime;
-    }
-
-    /**
-     * Set Width
-     *
-     * @param int $width Width
-     *
-     * @return Captcha
-     */
-    public function setWidth($width)
-    {
-        $this->width = $width;
-
-        return $this;
-    }
-
-    /**
-     * Get Width
-     *
-     * @return int
-     */
-    public function getWidth()
-    {
-        return $this->width;
-    }
-
-    /**
-     * Set Height
-     *
-     * @param int $height Height
-     *
-     * @return Captcha
-     */
-    public function setHeight($height)
-    {
-        $this->height = $height;
-
-        return $this;
-    }
-
-    /**
-     * Get Height
-     *
-     * @return int
-     */
-    public function getHeight()
-    {
-        return $this->height;
     }
 
     /**

@@ -37,15 +37,15 @@ class SessionProtection
     /**
      * Create a captcha
      *
-     * @param int $width    Width (default to Generator::CAPTCHA_WIDTH)
-     * @param int $height   Height (default to Generator::CAPTCHA_HEIGHT)
-     * @param int $lifetime Captcha lifetime (default to Generator::CAPTCHA_LIFETIME)
+     * @param int   $size     Word size (default to Generator::CAPTCHA_SIZE)
+     * @param int   $lifetime Captcha lifetime (default to Generator::CAPTCHA_LIFETIME)
+     * @param array $options  Captcha image options
      *
      * @return Captcha
      */
-    public static function create($width = Generator::CAPTCHA_WIDTH, $height = Generator::CAPTCHA_HEIGHT, $lifetime = Generator::CAPTCHA_LIFETIME)
+    public static function create($size = Generator::CAPTCHA_SIZE, $lifetime = Generator::CAPTCHA_LIFETIME, array $options = array())
     {
-        return self::getGenerator()->create($width, $height, $lifetime);
+        return self::getGenerator()->create($size, $lifetime, $options);
     }
 
     /**

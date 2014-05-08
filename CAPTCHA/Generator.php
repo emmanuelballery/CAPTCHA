@@ -10,18 +10,11 @@ namespace CAPTCHA;
 class Generator
 {
     /**
-     * Default captcha width
+     * Default captcha size
      *
      * @var int
      */
-    const CAPTCHA_WIDTH = 300;
-
-    /**
-     * Default captcha height
-     *
-     * @var int
-     */
-    const CAPTCHA_HEIGHT = 80;
+    const CAPTCHA_SIZE = 12;
 
     /**
      * Default captcha lifetime
@@ -53,13 +46,13 @@ class Generator
     /**
      * Create a captcha
      *
-     * @param int $width    Width (default to self::CAPTCHA_WIDTH)
-     * @param int $height   Height (default to self::CAPTCHA_HEIGHT)
-     * @param int $lifetime Captcha lifetime (default to self::CAPTCHA_LIFETIME)
+     * @param int   $size     Word size (default to self::CAPTCHA_SIZE)
+     * @param int   $lifetime Captcha lifetime (default to self::CAPTCHA_LIFETIME)
+     * @param array $options  Captcha image options
      *
      * @return Captcha
      */
-    public function create($width = self::CAPTCHA_WIDTH, $height = self::CAPTCHA_HEIGHT, $lifetime = self::CAPTCHA_LIFETIME)
+    public function create($size = self::CAPTCHA_SIZE, $lifetime = self::CAPTCHA_LIFETIME, array $options = array())
     {
         // Get captchas
         if (null === $captchas = $this->getStorage()->get(self::CAPTCHA_STORAGE_KEY)) {
@@ -67,7 +60,7 @@ class Generator
         }
 
         // Store this captcha
-        $captcha = new Captcha($width, $height, $lifetime);
+        $captcha = new Captcha($size, $lifetime, $options);
         $captchas[$captcha->getId()] = $captcha;
         $this->getStorage()->set(self::CAPTCHA_STORAGE_KEY, $captchas);
 
